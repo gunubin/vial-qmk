@@ -100,7 +100,6 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
         case C_ENT:
         case S_Z:
-        case S_SLSH:
         case C_A:
             return 180;
         default:
@@ -114,6 +113,7 @@ bool get_permissive_hold(uint16_t keycode, keyrecord_t *record) {
         case A_BSPC:
         case L1_BSPC:
         case LA_TAB:
+        case S_SLSH:
             return false;
         default:
             return true;
@@ -126,6 +126,7 @@ bool get_hold_on_other_key_press(uint16_t keycode, keyrecord_t *record) {
         case A_BSPC:
         case L1_BSPC:
         case LA_TAB:
+        case S_SLSH:
             return true;
         default:
             return false;
@@ -138,6 +139,7 @@ bool get_tapping_force_hold(uint16_t keycode, keyrecord_t *record) {
         case A_BSPC:
         case L1_BSPC:
         case LA_TAB:
+        case S_SLSH:
             return false;
         default:
             return true;
