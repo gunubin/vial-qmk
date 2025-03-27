@@ -21,6 +21,9 @@ enum layers {
   _FUNCTION
 };
 
+#define A_SPC LALT_T(KC_SPC)
+#define G_TAB LGUI_T(KC_TAB)
+
 #define LA_TAB LALT_T(KC_TAB)
 #define G_SPC LGUI_T(KC_SPC)
 #define A_BSPC RALT_T(KC_BSPC)
@@ -52,8 +55,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     KC_Q,    KC_W,    KC_E,    KC_R,    KC_T, _______, _______, KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,
     C_A,     KC_S,    KC_D,    KC_F,    KC_G, _______, _______, KC_H,    KC_J,    KC_K,    KC_L,    C_ENT,
     S_Z,     KC_X,    KC_C,    KC_V,    KC_B, _______, _______, KC_N,    KC_M, KC_COMM,   KC_DOT,   S_SLSH,
-    _______, _______,LA_TAB, G_SPC, _______,  KC_TAB,  A_BSPC,_______, L1_BSPC,   MO(1),  _______,  _______
+    _______, KC_LALT,G_TAB,   A_SPC, _______,  KC_SPC,  A_BSPC,_______, L1_BSPC,   OSM(MOD_LSFT),  _______,  _______
 ),
+
 
 /* Function レイヤー
  * ,-----------------------------------------. ,-----------------------------------------.
@@ -98,51 +102,68 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
-        case C_ENT:
         case S_Z:
         case C_A:
+            return 170;
+        case C_ENT:
             return 180;
         default:
             return 200;
     }
 }
 
-bool get_permissive_hold(uint16_t keycode, keyrecord_t *record) {
+uint16_t get_quick_tap_term(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
-        case G_SPC:
         case A_BSPC:
         case L1_BSPC:
+            return 0;
+        default:
+            return QUICK_TAP_TERM;
+    }
+}
+
+bool get_permissive_hold(uint16_t keycode, keyrecord_t *record) {
+    switch (keycode) {
+        case A_SPC:
+        case G_TAB:
+        case G_SPC:
         case LA_TAB:
+        case A_BSPC:
+        case L1_BSPC:
         case S_SLSH:
             return false;
         default:
-            return true;
+           return PERMISSIVE_HOLD;
     }
 }
 
 bool get_hold_on_other_key_press(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
+        case A_SPC:
+        case G_TAB:
         case G_SPC:
+        case LA_TAB:
         case A_BSPC:
         case L1_BSPC:
-        case LA_TAB:
         case S_SLSH:
             return true;
         default:
-            return false;
+            return HOLD_ON_OTHER_KEY_PRESS;
     }
 }
 
 bool get_tapping_force_hold(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
+        case A_SPC:
+        case G_TAB:
         case G_SPC:
+        case LA_TAB:
         case A_BSPC:
         case L1_BSPC:
-        case LA_TAB:
         case S_SLSH:
             return false;
         default:
-            return true;
+            return TAPPING_FORCE_HOLD;
     }
 }
 
