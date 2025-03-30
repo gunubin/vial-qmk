@@ -15,6 +15,7 @@
  */
 
 #include QMK_KEYBOARD_H
+#include "recent_keys.h"
 
 const uint16_t PROGMEM one_shot_shift_combo[] = {KC_F, KC_J, COMBO_END};
 combo_t key_combos[] = {
@@ -89,55 +90,94 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 };
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-    static uint16_t last_tap_time = 0;
-    static uint16_t last_keycode = KC_NO;
-
-    if (record->event.pressed) {
-        uint16_t current_time = timer_read();
-        if (keycode == KC_LPRN) {
-            // double ( to >
-            if (last_keycode == KC_LPRN && (current_time - last_tap_time) < TAPPING_TERM) {
-                tap_code(KC_BSPC);
-                tap_code16(LSFT(KC_COMM));
-                last_keycode = KC_NO;
-                return false;
-            }
-            last_tap_time = current_time;
-            last_keycode = KC_LPRN;
-        } else if (keycode == KC_RPRN) {
-            // double ) to >
-            if (last_keycode == KC_RPRN && (current_time - last_tap_time) < TAPPING_TERM) {
-                tap_code(KC_BSPC);
-                tap_code16(LSFT(KC_DOT));
-                last_keycode = KC_NO;
-                return false;
-            }
-            last_tap_time = current_time;
-            last_keycode = KC_RPRN;
-        } else if (keycode == KC_LCBR) {
-            // double { to [
-            if (last_keycode == KC_LCBR && (current_time - last_tap_time) < TAPPING_TERM) {
-                tap_code(KC_BSPC);
-                tap_code(KC_LBRC);
-                last_keycode = KC_NO;
-                return false;
-            }
-            last_tap_time = current_time;
-            last_keycode = KC_LCBR;
-        } else if (keycode == KC_RCBR) {
-            // double } to ]
-            if (last_keycode == KC_RCBR && (current_time - last_tap_time) < TAPPING_TERM) {
-                tap_code(KC_BSPC);
-                tap_code(KC_RBRC);
-                last_keycode = KC_NO;
-                return false;
-            }
-            last_tap_time = current_time;
-            last_keycode = KC_RCBR;
-        } else {
-            last_keycode = KC_NO;
-        }
+ if (update_recent_keys(keycode, record)) {
+//     // Expand "qem" to my email address.
+//     if (recent[RECENT_SIZE - 3] == KC_Q &&
+//         recent[RECENT_SIZE - 2] == KC_E &&
+//         recent[RECENT_SIZE - 1] == KC_M) {
+//       SEND_STRING(SS_TAP(X_BSPC) SS_TAP(X_BSPC) "myname@email.com");
+//       return false;
+//     }
+    // double tap "|" to "\"
+    if (recent[RECENT_SIZE - 2] == KC_PIPE &&
+        recent[RECENT_SIZE - 1] == KC_PIPE) {
+        tap_code(KC_BSPC);
+        tap_code(KC_BSLS);
+        return false;
     }
+    // double tap "/" to "-"
+    if (recent[RECENT_SIZE - 2] == KC_SLSH &&
+        recent[RECENT_SIZE - 1] == KC_SLSH) {
+        tap_code(KC_BSPC);
+        tap_code(KC_MINS);
+        return false;
+    }
+    // double tap "-" to "~"
+    if (recent[RECENT_SIZE - 2] == KC_MINS &&
+        recent[RECENT_SIZE - 1] == KC_MINS) {
+        tap_code(KC_BSPC);
+        tap_code16(LSFT(KC_GRV));
+        return false;
+    }
+    // double tap ",," to ";"
+    if (recent[RECENT_SIZE - 2] == KC_COMM &&
+        recent[RECENT_SIZE - 1] == KC_COMM) {
+        tap_code(KC_BSPC);
+        tap_code(KC_SCLN);
+        return false;
+    }
+    // double tap "." to ":"
+    if (recent[RECENT_SIZE - 2] == KC_DOT &&
+        recent[RECENT_SIZE - 1] == KC_DOT) {
+        tap_code(KC_BSPC);
+        tap_code16(LSFT(KC_SCLN));
+        return false;
+    }
+    // double tap "'" to "`"
+    if (recent[RECENT_SIZE - 2] == KC_QUOT &&
+        recent[RECENT_SIZE - 1] == KC_QUOT) {
+        tap_code(KC_BSPC);
+        tap_code(KC_GRV);
+        return false;
+    }
+    // double tap "+" to "-"
+    if (recent[RECENT_SIZE - 2] == KC_PLUS &&
+        recent[RECENT_SIZE - 1] == KC_PLUS) {
+        tap_code(KC_BSPC);
+        tap_code(KC_MINS);
+        return false;
+    }
+    // double tap "(" to "[".
+    if (recent[RECENT_SIZE - 2] == KC_LPRN &&
+        recent[RECENT_SIZE - 1] == KC_LPRN) {
+        tap_code(KC_BSPC);
+        tap_code16(LSFT(KC_COMM));
+        return false;
+    }
+    // double tap ")" to "]".
+    if (recent[RECENT_SIZE - 2] == KC_RPRN &&
+        recent[RECENT_SIZE - 1] == KC_RPRN) {
+        tap_code(KC_BSPC);
+        tap_code16(LSFT(KC_DOT));
+        return false;
+    }
+    // double tap "{" to "[".
+    if (recent[RECENT_SIZE - 2] == KC_LCBR &&
+        recent[RECENT_SIZE - 1] == KC_LCBR) {
+        tap_code(KC_BSPC);
+        tap_code(KC_LBRC);
+        return false;
+    }
+    // double tap "}" to "]".
+    if (recent[RECENT_SIZE - 2] == KC_RCBR &&
+        recent[RECENT_SIZE - 1] == KC_RCBR) {
+        tap_code(KC_BSPC);
+        tap_code(KC_RBRC);
+        return false;
+    }
+  }
+
+
     return true;
 }
 
