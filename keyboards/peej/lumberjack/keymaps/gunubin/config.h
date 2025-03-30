@@ -21,4 +21,3 @@
 
 #define TAPPING_FORCE_HOLD true
 #define TAPPING_FORCE_HOLD_PER_KEY
-

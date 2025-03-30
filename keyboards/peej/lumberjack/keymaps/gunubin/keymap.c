@@ -16,10 +16,16 @@
 
 #include QMK_KEYBOARD_H
 
+const uint16_t PROGMEM one_shot_shift_combo[] = {KC_F, KC_J, COMBO_END};
+combo_t key_combos[] = {
+    COMBO(one_shot_shift_combo, OSM(MOD_LSFT)),
+};
+
 enum layers {
   _QWERTY = 0,
   _FUNCTION
 };
+
 
 #define A_SPC LALT_T(KC_SPC)
 #define G_TAB LGUI_T(KC_TAB)
@@ -82,23 +88,58 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 };
 
-// Ctrl+enter -> Ctrl+;
-// for IME
-// bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-//     switch (keycode) {
-//     case C_ENT:
-//         if (record->event.pressed) {
-//             if (get_mods() & MOD_BIT(KC_LCTL)) {
-//                 register_code(KC_SCLN);
-//                 return false;
-//             }
-//         } else {
-//             unregister_code(KC_SCLN);
-//         }
-//         return true;
-//     }
-//     return true;
-// };
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    static uint16_t last_tap_time = 0;
+    static uint16_t last_keycode = KC_NO;
+
+    if (record->event.pressed) {
+        uint16_t current_time = timer_read();
+        if (keycode == KC_LPRN) {
+            // double ( to >
+            if (last_keycode == KC_LPRN && (current_time - last_tap_time) < TAPPING_TERM) {
+                tap_code(KC_BSPC);
+                tap_code16(LSFT(KC_COMM));
+                last_keycode = KC_NO;
+                return false;
+            }
+            last_tap_time = current_time;
+            last_keycode = KC_LPRN;
+        } else if (keycode == KC_RPRN) {
+            // double ) to >
+            if (last_keycode == KC_RPRN && (current_time - last_tap_time) < TAPPING_TERM) {
+                tap_code(KC_BSPC);
+                tap_code16(LSFT(KC_DOT));
+                last_keycode = KC_NO;
+                return false;
+            }
+            last_tap_time = current_time;
+            last_keycode = KC_RPRN;
+        } else if (keycode == KC_LCBR) {
+            // double { to [
+            if (last_keycode == KC_LCBR && (current_time - last_tap_time) < TAPPING_TERM) {
+                tap_code(KC_BSPC);
+                tap_code(KC_LBRC);
+                last_keycode = KC_NO;
+                return false;
+            }
+            last_tap_time = current_time;
+            last_keycode = KC_LCBR;
+        } else if (keycode == KC_RCBR) {
+            // double } to ]
+            if (last_keycode == KC_RCBR && (current_time - last_tap_time) < TAPPING_TERM) {
+                tap_code(KC_BSPC);
+                tap_code(KC_RBRC);
+                last_keycode = KC_NO;
+                return false;
+            }
+            last_tap_time = current_time;
+            last_keycode = KC_RCBR;
+        } else {
+            last_keycode = KC_NO;
+        }
+    }
+    return true;
+}
 
 uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
