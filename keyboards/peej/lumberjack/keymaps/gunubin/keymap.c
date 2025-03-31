@@ -98,6 +98,20 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 //       SEND_STRING(SS_TAP(X_BSPC) SS_TAP(X_BSPC) "myname@email.com");
 //       return false;
 //     }
+    // tap "," "." to "|"
+    if (recent[RECENT_SIZE - 2] == KC_COMM &&
+        recent[RECENT_SIZE - 1] == KC_DOT) {
+        tap_code(KC_BSPC);
+        tap_code16(LSFT(KC_BACKSLASH));
+        return false;
+    }
+    // tap "." "," to "_"
+    if (recent[RECENT_SIZE - 2] == KC_DOT &&
+        recent[RECENT_SIZE - 1] == KC_COMM) {
+        tap_code(KC_BSPC);
+        tap_code16(LSFT(KC_MINS));
+        return false;
+    }
     // double tap "|" to "\"
     if (recent[RECENT_SIZE - 2] == KC_PIPE &&
         recent[RECENT_SIZE - 1] == KC_PIPE) {
