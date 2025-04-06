@@ -16,7 +16,7 @@
 
 #include QMK_KEYBOARD_H
 #include "recent_keys.h"
-#include "combo_logic.h"
+#include "sequential_combo.h"
 
 enum layers {
   _QWERTY = 0,
@@ -37,53 +37,70 @@ enum layers {
 #define S_Z LSFT_T(KC_Z)
 #define S_SLSH LSFT_T(KC_SLSH)
 
+const uint16_t PROGMEM sleep_combo[] = {KC_F14, KC_F15, COMBO_END};
 const uint16_t PROGMEM one_shot_shift_combo[] = {KC_F, KC_J, COMBO_END};
 combo_t key_combos[] = {
+    COMBO(sleep_combo, KC_NO), // combo index 0
     COMBO(one_shot_shift_combo, OSM(MOD_LSFT)),
 };
 
-static const combo_entry_t my_combos[] = {
+void process_combo_event(uint16_t combo_index, bool pressed) {
+    switch(combo_index) {
+        case 0:
+            if (pressed) {
+                // option + cmd + backspace (system sleep)
+                register_code16(LALT(KC_LGUI));
+                tap_code(KC_BSPC);
+                unregister_code16(LALT(KC_LGUI));
+            }
+            break;
+    }
+}
+
+static const sequential_combo_entry_t my_combos[] = {
+    {KC_D, KC_F, KC_F16}, // for IME
+    {KC_F, KC_D, KC_F16}, // for IME
     {KC_S, KC_D, LSFT(KC_9)}, // tap "s" "d" to "("
     {KC_D, KC_S, LSFT(KC_0)}, // tap "d" "s" to ")"
     {KC_X, KC_C, LSFT(KC_LBRC)}, // tap "x" "c" to "{"
     {KC_C, KC_X, LSFT(KC_RBRC)}, // tap "c" "x" to "}"
+    {KC_LPRN, KC_LPRN, LSFT(KC_COMM)}, // double tap "(" to "["
+    {KC_RPRN, KC_RPRN, LSFT(KC_DOT)}, // double tap ")" to "]"
+    {KC_LCBR, KC_LCBR, KC_LBRC}, // double tap "{" to "["
+    {KC_RCBR, KC_RCBR, KC_RBRC}, // double tap "}" to "]"
     {KC_PIPE, KC_PIPE, KC_BSLS}, // double tap "|" to "\"
     {S_SLSH, S_SLSH, KC_MINS}, // double tap "/" to "-"
     {KC_MINS, KC_MINS, LSFT(KC_GRV)}, // double tap "-" to "~"
-    {KC_DOT, S_SLSH, LSFT(KC_BACKSLASH)}, // tap "." "/" to "|"
+    {KC_DOT, S_SLSH, LSFT(KC_SLSH)}, // tap "." "/" to "?"
     {KC_COMM, KC_DOT, KC_EQL}, // tap "," "." to "="
     {KC_DOT, KC_COMM, LSFT(KC_MINS)}, // tap "." "," to "_"
     {KC_DOT, KC_DOT, LSFT(KC_SCLN)}, // double tap "." to ":"
     {KC_COMM, KC_COMM, KC_SCLN}, // double tap "," to ";"
     {KC_QUOT, KC_QUOT, LSFT(KC_QUOT)}, // double tap "'" to """
     {KC_PLUS, KC_PLUS, KC_MINS}, // double tap "+" to "-"
-    {KC_LPRN, KC_LPRN, LSFT(KC_COMM)}, // double tap "(" to "["
-    {KC_RPRN, KC_RPRN, LSFT(KC_DOT)}, // double tap ")" to "]"
-    {KC_LCBR, KC_LCBR, KC_LBRC}, // double tap "{" to "["
-    {KC_RCBR, KC_RCBR, KC_RBRC}, // double tap "}" to "]"
 };
 
 void keyboard_post_init_user(void) {
-    init_combos(my_combos, sizeof(my_combos) / sizeof(my_combos[0]));
+    init_sequential_combos(my_combos, sizeof(my_combos) / sizeof(my_combos[0]));
 }
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 /* Qwerty レイヤー
  * ,-----------------------------------------. ,-----------------------------------------.
- * |  1   |  2   |  3   |  4   |  5   |      | |      |  6   |  7   |  8   |  9   |  0   |
+ * |  1   |  2   |  3   |  4   |  5   | F14  | | F15  |  6   |  7   |  8   |  9   |  0   |
  * |------+------+------+------+------+------| |------+------+------+------+------+------|
  * |  Q   |  W   |  E   |  R   |  T   |      | |      |  Y   |  U   |  I   |  O   |  P   |
  * |------+------+------+------+------+------| |------+------+------+------+------+------|
- * |  A   |  S   |  D   |  F   |  G   |      | |      |  H   |  J   |  K   |  L   | ENT  |
+ * | C_A  |  S   |  D   |  F   |  G   |      | |      |  H   |  J   |  K   |  L   |C_ENT |
  * |------+------+------+------+------+------| |------+------+------+------+------+------|
- * |  Z   |  X   |  C   |  V   |  B   |      | |      |  N   |  M   |  ,   |  .   |  /   |
+ * | S_Z  |  X   |  C   |  V   |  B   |      | |      |  N   |  M   |  ,   |  .   |S_SLSH|
  * |------+------+------+------+------+------| |------+------+------+------+------+------|
- * |      |      | Alt  | Cmd  |      | Tab  | | Bksp | Alt  | Entr | Fn   |      |      |
+ * |      | LALT |G_TAB |A_SPC |      | SPC  | |A_BSPC|      |L1_BSPC|OSM_LSFT|      |  |
  * `-----------------------------------------' `-----------------------------------------'
  */
-[_QWERTY] = LAYOUT_ortho_5x12(
-    KC_1,    KC_2,    KC_3,    KC_4,    KC_5, KC_LCTL, _______, KC_6,    KC_7,    KC_8,    KC_9,    KC_0,
+ [_QWERTY] = LAYOUT_ortho_5x12(
+    KC_1,    KC_2,    KC_3,    KC_4,    KC_5, KC_F14,   KC_F15, KC_6,    KC_7,    KC_8,    KC_9,    KC_0,
     KC_Q,    KC_W,    KC_E,    KC_R,    KC_T, _______, _______, KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,
     C_A,     KC_S,    KC_D,    KC_F,    KC_G, _______, _______, KC_H,    KC_J,    KC_K,    KC_L,    C_ENT,
     S_Z,     KC_X,    KC_C,    KC_V,    KC_B, _______, _______, KC_N,    KC_M, KC_COMM,   KC_DOT,   S_SLSH,
@@ -103,7 +120,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * |      |      | Bksp | Space|      |      | |      |      | Space|      |      |      |
  * `-----------------------------------------' `-----------------------------------------'
  */
-[_FUNCTION] = LAYOUT_ortho_5x12(
+ [_FUNCTION] = LAYOUT_ortho_5x12(
     KC_EXLM, KC_AT,   KC_HASH, KC_DLR,  KC_PERC, _______, _______, KC_CIRC, KC_AMPR, KC_ASTR, KC_LPRN, KC_RPRN,
     KC_1,     KC_2,      KC_3,   KC_4,     KC_5, _______, _______, KC_6,       KC_7,    KC_8,    KC_9,    KC_0,
     KC_PLUS, KC_LPRN, KC_RPRN, KC_EQL,  KC_COLN, _______, _______, KC_BSPC, KC_PLUS, KC_MINS, KC_COLN, KC_SCLN,
@@ -125,14 +142,14 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
 
 
-    if (!process_combo_keys(keycode, record)) return false;
+    if (!process_sequential_combo_keys(keycode, record)) return false;
 
     return true;
 }
 
 void housekeeping_task_user(void) {
     recent_keys_housekeeping();
-    combo_housekeeping();
+    sequential_combo_housekeeping();
 }
 
 uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {

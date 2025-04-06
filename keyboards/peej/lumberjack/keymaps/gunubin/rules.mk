@@ -1,4 +1,3 @@
 SRC += recent_keys.c
-SRC += combo_logic.c
-# AUTO_SHIFT_ENABLE = yes
+SRC += sequential_combo.c
 COMBO_ENABLE = yes
