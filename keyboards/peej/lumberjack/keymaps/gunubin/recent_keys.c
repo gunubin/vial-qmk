@@ -53,7 +53,7 @@ bool update_recent_keys(uint16_t keycode, keyrecord_t* record) {
     return true;
 }
 
-void housekeeping_task_user(void) {
+void recent_keys_housekeeping(void) {
     if (recent[RECENT_SIZE - 1] && timer_expired(timer_read(), deadline)) {
         clear_recent_keys();  // Timed out; clear the buffer.
     }

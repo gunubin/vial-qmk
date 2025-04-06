@@ -10,5 +10,7 @@ extern uint16_t recent[RECENT_SIZE];
 
 void clear_recent_keys(void);
 bool update_recent_keys(uint16_t keycode, keyrecord_t* record);
+void recent_keys_housekeeping(void);
 
 #endif // RECENT_KEYS_H
+

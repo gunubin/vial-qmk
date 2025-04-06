@@ -16,17 +16,12 @@
 
 #include QMK_KEYBOARD_H
 #include "recent_keys.h"
-
-const uint16_t PROGMEM one_shot_shift_combo[] = {KC_F, KC_J, COMBO_END};
-combo_t key_combos[] = {
-    COMBO(one_shot_shift_combo, OSM(MOD_LSFT)),
-};
+#include "combo_logic.h"
 
 enum layers {
   _QWERTY = 0,
   _FUNCTION
 };
-
 
 #define A_SPC LALT_T(KC_SPC)
 #define G_TAB LGUI_T(KC_TAB)
@@ -41,6 +36,36 @@ enum layers {
 
 #define S_Z LSFT_T(KC_Z)
 #define S_SLSH LSFT_T(KC_SLSH)
+
+const uint16_t PROGMEM one_shot_shift_combo[] = {KC_F, KC_J, COMBO_END};
+combo_t key_combos[] = {
+    COMBO(one_shot_shift_combo, OSM(MOD_LSFT)),
+};
+
+static const combo_entry_t my_combos[] = {
+    {KC_S, KC_D, LSFT(KC_9)}, // tap "s" "d" to "("
+    {KC_D, KC_S, LSFT(KC_0)}, // tap "d" "s" to ")"
+    {KC_X, KC_C, LSFT(KC_LBRC)}, // tap "x" "c" to "{"
+    {KC_C, KC_X, LSFT(KC_RBRC)}, // tap "c" "x" to "}"
+    {KC_PIPE, KC_PIPE, KC_BSLS}, // double tap "|" to "\"
+    {S_SLSH, S_SLSH, KC_MINS}, // double tap "/" to "-"
+    {KC_MINS, KC_MINS, LSFT(KC_GRV)}, // double tap "-" to "~"
+    {KC_DOT, S_SLSH, LSFT(KC_BACKSLASH)}, // tap "." "/" to "|"
+    {KC_COMM, KC_DOT, KC_EQL}, // tap "," "." to "="
+    {KC_DOT, KC_COMM, LSFT(KC_MINS)}, // tap "." "," to "_"
+    {KC_DOT, KC_DOT, LSFT(KC_SCLN)}, // double tap "." to ":"
+    {KC_COMM, KC_COMM, KC_SCLN}, // double tap "," to ";"
+    {KC_QUOT, KC_QUOT, LSFT(KC_QUOT)}, // double tap "'" to """
+    {KC_PLUS, KC_PLUS, KC_MINS}, // double tap "+" to "-"
+    {KC_LPRN, KC_LPRN, LSFT(KC_COMM)}, // double tap "(" to "["
+    {KC_RPRN, KC_RPRN, LSFT(KC_DOT)}, // double tap ")" to "]"
+    {KC_LCBR, KC_LCBR, KC_LBRC}, // double tap "{" to "["
+    {KC_RCBR, KC_RCBR, KC_RBRC}, // double tap "}" to "]"
+};
+
+void keyboard_post_init_user(void) {
+    init_combos(my_combos, sizeof(my_combos) / sizeof(my_combos[0]));
+}
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
@@ -64,7 +89,6 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     S_Z,     KC_X,    KC_C,    KC_V,    KC_B, _______, _______, KC_N,    KC_M, KC_COMM,   KC_DOT,   S_SLSH,
     _______, KC_LALT,G_TAB,   A_SPC, _______,  KC_SPC,  A_BSPC,_______, L1_BSPC,   OSM(MOD_LSFT),  _______,  _______
 ),
-
 
 /* Function レイヤー
  * ,-----------------------------------------. ,-----------------------------------------.
@@ -90,116 +114,33 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 };
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
- if (update_recent_keys(keycode, record)) {
-//     // Expand "qem" to my email address.
-//     if (recent[RECENT_SIZE - 3] == KC_Q &&
-//         recent[RECENT_SIZE - 2] == KC_E &&
-//         recent[RECENT_SIZE - 1] == KC_M) {
-//       SEND_STRING(SS_TAP(X_BSPC) SS_TAP(X_BSPC) "myname@email.com");
-//       return false;
-//     }
-    // tap "," "." to "|"
-    if (recent[RECENT_SIZE - 2] == KC_COMM &&
-        recent[RECENT_SIZE - 1] == KC_DOT) {
-        tap_code(KC_BSPC);
-        tap_code16(LSFT(KC_BACKSLASH));
-        return false;
+    if (update_recent_keys(keycode, record)) {
+        //// Expand "qem" to my email address.
+        //if (recent[RECENT_SIZE - 3] == KC_Q &&
+        //    recent[RECENT_SIZE - 2] == KC_E &&
+        //    recent[RECENT_SIZE - 1] == KC_M) {
+        //        SEND_STRING(SS_TAP(X_BSPC) SS_TAP(X_BSPC) "myname@email.com");
+        //        return false;
+        //}
     }
-    // tap "." "," to "_"
-    if (recent[RECENT_SIZE - 2] == KC_DOT &&
-        recent[RECENT_SIZE - 1] == KC_COMM) {
-        tap_code(KC_BSPC);
-        tap_code16(LSFT(KC_MINS));
-        return false;
-    }
-    // double tap "|" to "\"
-    if (recent[RECENT_SIZE - 2] == KC_PIPE &&
-        recent[RECENT_SIZE - 1] == KC_PIPE) {
-        tap_code(KC_BSPC);
-        tap_code(KC_BSLS);
-        return false;
-    }
-    // double tap "/" to "-"
-    if (recent[RECENT_SIZE - 2] == KC_SLSH &&
-        recent[RECENT_SIZE - 1] == KC_SLSH) {
-        tap_code(KC_BSPC);
-        tap_code(KC_MINS);
-        return false;
-    }
-    // double tap "-" to "~"
-    if (recent[RECENT_SIZE - 2] == KC_MINS &&
-        recent[RECENT_SIZE - 1] == KC_MINS) {
-        tap_code(KC_BSPC);
-        tap_code16(LSFT(KC_GRV));
-        return false;
-    }
-    // double tap ",," to ";"
-    if (recent[RECENT_SIZE - 2] == KC_COMM &&
-        recent[RECENT_SIZE - 1] == KC_COMM) {
-        tap_code(KC_BSPC);
-        tap_code(KC_SCLN);
-        return false;
-    }
-    // double tap "." to ":"
-    if (recent[RECENT_SIZE - 2] == KC_DOT &&
-        recent[RECENT_SIZE - 1] == KC_DOT) {
-        tap_code(KC_BSPC);
-        tap_code16(LSFT(KC_SCLN));
-        return false;
-    }
-    // double tap "'" to "`"
-    if (recent[RECENT_SIZE - 2] == KC_QUOT &&
-        recent[RECENT_SIZE - 1] == KC_QUOT) {
-        tap_code(KC_BSPC);
-        tap_code(KC_GRV);
-        return false;
-    }
-    // double tap "+" to "-"
-    if (recent[RECENT_SIZE - 2] == KC_PLUS &&
-        recent[RECENT_SIZE - 1] == KC_PLUS) {
-        tap_code(KC_BSPC);
-        tap_code(KC_MINS);
-        return false;
-    }
-    // double tap "(" to "[".
-    if (recent[RECENT_SIZE - 2] == KC_LPRN &&
-        recent[RECENT_SIZE - 1] == KC_LPRN) {
-        tap_code(KC_BSPC);
-        tap_code16(LSFT(KC_COMM));
-        return false;
-    }
-    // double tap ")" to "]".
-    if (recent[RECENT_SIZE - 2] == KC_RPRN &&
-        recent[RECENT_SIZE - 1] == KC_RPRN) {
-        tap_code(KC_BSPC);
-        tap_code16(LSFT(KC_DOT));
-        return false;
-    }
-    // double tap "{" to "[".
-    if (recent[RECENT_SIZE - 2] == KC_LCBR &&
-        recent[RECENT_SIZE - 1] == KC_LCBR) {
-        tap_code(KC_BSPC);
-        tap_code(KC_LBRC);
-        return false;
-    }
-    // double tap "}" to "]".
-    if (recent[RECENT_SIZE - 2] == KC_RCBR &&
-        recent[RECENT_SIZE - 1] == KC_RCBR) {
-        tap_code(KC_BSPC);
-        tap_code(KC_RBRC);
-        return false;
-    }
-  }
 
+
+    if (!process_combo_keys(keycode, record)) return false;
 
     return true;
+}
+
+void housekeeping_task_user(void) {
+    recent_keys_housekeeping();
+    combo_housekeeping();
 }
 
 uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
         case S_Z:
+            return 160;
         case C_A:
-            return 170;
+            return 175;
         case C_ENT:
             return 180;
         default:
