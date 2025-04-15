@@ -20,14 +20,14 @@
 
 enum layers {
   _QWERTY = 0,
-  _FUNCTION
+  _FUNCTION,
+  _NUMBER,
 };
 
+// 謎の不具合でlguiとlaltが入れ替わった!?
 #define A_SPC LALT_T(KC_SPC)
 #define G_TAB LGUI_T(KC_TAB)
 
-#define LA_TAB LALT_T(KC_TAB)
-#define G_SPC LGUI_T(KC_SPC)
 #define A_BSPC RALT_T(KC_BSPC)
 #define L1_BSPC LT(1, KC_BSPC)
 
@@ -49,9 +49,9 @@ void process_combo_event(uint16_t combo_index, bool pressed) {
         case 0:
             if (pressed) {
                 // option + cmd + backspace (system sleep)
-                register_code16(LALT(KC_LGUI));
+                register_code16(RALT(KC_LGUI));
                 tap_code(KC_BSPC);
-                unregister_code16(LALT(KC_LGUI));
+                unregister_code16(RALT(KC_LGUI));
             }
             break;
     }
@@ -61,24 +61,24 @@ static const sequential_combo_entry_t my_combos[] = {
     {KC_D, KC_F, KC_F16}, // for IME
     {KC_F, KC_D, KC_F16}, // for IME
     {KC_S, KC_D, LSFT(KC_9)}, // tap "s" "d" to "("
-    {KC_D, KC_S, LSFT(KC_0)}, // tap "d" "s" to ")"
+    // {KC_D, KC_S, LSFT(KC_0)}, // tap "d" "s" to ")"
     {KC_X, KC_C, LSFT(KC_LBRC)}, // tap "x" "c" to "{"
     {KC_C, KC_X, LSFT(KC_RBRC)}, // tap "c" "x" to "}"
+    {KC_DOT, S_SLSH, LSFT(KC_SLSH)}, // tap "." "/" to "?"
+    {KC_COMM, KC_DOT, KC_EQL}, // tap "," "." to "="
+    {KC_DOT, KC_COMM, KC_QUOT}, // tap "." "," to "'"
+    {KC_COMM, KC_M, KC_UNDS}, // tap "," "M" to "_"
+    // {KC_DOT, KC_DOT, LSFT(KC_SCLN)}, // double tap "." to ":"
+    {KC_COMM, KC_COMM, LSFT(KC_SCLN)}, // double tap "," to ":"
+    {LSFT(KC_SCLN), LSFT(KC_SCLN), KC_SCLN}, // double tap ":" to ";"
     {KC_LPRN, KC_LPRN, LSFT(KC_COMM)}, // double tap "(" to "["
     {KC_RPRN, KC_RPRN, LSFT(KC_DOT)}, // double tap ")" to "]"
     {KC_LCBR, KC_LCBR, KC_LBRC}, // double tap "{" to "["
     {KC_RCBR, KC_RCBR, KC_RBRC}, // double tap "}" to "]"
-    {KC_PIPE, KC_PIPE, KC_BSLS}, // double tap "|" to "\"
     {S_SLSH, S_SLSH, KC_MINS}, // double tap "/" to "-"
     {KC_MINS, KC_MINS, LSFT(KC_GRV)}, // double tap "-" to "~"
-    {KC_DOT, S_SLSH, LSFT(KC_SLSH)}, // tap "." "/" to "?"
-    {KC_COMM, KC_DOT, KC_EQL}, // tap "," "." to "="
-    {KC_DOT, KC_COMM, LSFT(KC_MINS)}, // tap "." "," to "_"
-    {KC_DOT, KC_DOT, LSFT(KC_SCLN)}, // double tap "." to ":"
-    {KC_COMM, KC_COMM, KC_SCLN}, // double tap "," to ";"
-    {KC_QUOT, KC_QUOT, LSFT(KC_QUOT)}, // double tap "'" to """
-    {KC_PLUS, KC_PLUS, KC_MINS}, // double tap "+" to "-"
 };
+
 
 void keyboard_post_init_user(void) {
     init_sequential_combos(my_combos, sizeof(my_combos) / sizeof(my_combos[0]));
@@ -104,7 +104,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     KC_Q,    KC_W,    KC_E,    KC_R,    KC_T, _______, _______, KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,
     C_A,     KC_S,    KC_D,    KC_F,    KC_G, _______, _______, KC_H,    KC_J,    KC_K,    KC_L,    C_ENT,
     S_Z,     KC_X,    KC_C,    KC_V,    KC_B, _______, _______, KC_N,    KC_M, KC_COMM,   KC_DOT,   S_SLSH,
-    _______, KC_LALT,G_TAB,   A_SPC, _______,  KC_SPC,  A_BSPC,_______, L1_BSPC,   OSM(MOD_LSFT),  _______,  _______
+    _______,_______, G_TAB,   A_SPC, _______,  KC_SPC, KC_RSFT,_______, L1_BSPC,   MO(2),  _______,  _______
 ),
 
 /* Function レイヤー
@@ -121,11 +121,19 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * `-----------------------------------------' `-----------------------------------------'
  */
  [_FUNCTION] = LAYOUT_ortho_5x12(
+    KC_1,     KC_2,      KC_3,   KC_4,     KC_5, _______, _______, KC_6,       KC_7,    KC_8,    KC_9,    KC_0,
+    KC_EXLM, KC_AT,   KC_HASH, KC_DLR,  KC_PERC, _______, _______, KC_CIRC, KC_AMPR, KC_ASTR,  KC_GRV, KC_TILD,
+    KC_PLUS, KC_LPRN, KC_RPRN, KC_EQL,  KC_COLN, _______, _______, KC_LEFT, KC_DOWN,   KC_UP,KC_RIGHT, KC_SCLN,
+    KC_PIPE, KC_LCBR, KC_RCBR, KC_QUOT, KC_DQT,  _______, _______, KC_BSLS, KC_UNDS, KC_LBRC, KC_RBRC, KC_MINS,
+    _______, _______, KC_LGUI, KC_LALT,  _______, _______, _______, _______,  KC_SPC, _______, _______, _______
+),
+
+ [_NUMBER] = LAYOUT_ortho_5x12(
     KC_EXLM, KC_AT,   KC_HASH, KC_DLR,  KC_PERC, _______, _______, KC_CIRC, KC_AMPR, KC_ASTR, KC_LPRN, KC_RPRN,
     KC_1,     KC_2,      KC_3,   KC_4,     KC_5, _______, _______, KC_6,       KC_7,    KC_8,    KC_9,    KC_0,
-    KC_PLUS, KC_LPRN, KC_RPRN, KC_EQL,  KC_COLN, _______, _______, KC_BSPC, KC_PLUS, KC_MINS, KC_COLN, KC_SCLN,
-    KC_BSLS, KC_LCBR, KC_RCBR, KC_QUOT, KC_DQT,  _______, _______, KC_PIPE, KC_UNDS, KC_LBRC, KC_RBRC, KC_MINS,
-    _______, _______, KC_BSPC, KC_SPC,  _______, _______, _______, _______,  KC_SPC, _______, _______, _______
+    _______, _______, _______, _______,  _______, _______, _______, _______, _______, _______, _______, _______,
+    _______, _______, _______, _______,  _______, _______, _______, _______, _______, _______, _______, _______,
+    _______, _______, _______, _______,  _______, _______, _______, _______, _______, _______, _______, _______
 )
 
 };
@@ -155,7 +163,7 @@ void housekeeping_task_user(void) {
 uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
         case S_Z:
-            return 160;
+            return 155;
         case C_A:
             return 175;
         case C_ENT:
@@ -179,8 +187,6 @@ bool get_permissive_hold(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
         case A_SPC:
         case G_TAB:
-        case G_SPC:
-        case LA_TAB:
         case A_BSPC:
         case L1_BSPC:
         case S_SLSH:
@@ -194,8 +200,6 @@ bool get_hold_on_other_key_press(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
         case A_SPC:
         case G_TAB:
-        case G_SPC:
-        case LA_TAB:
         case A_BSPC:
         case L1_BSPC:
         case S_SLSH:
@@ -209,8 +213,6 @@ bool get_tapping_force_hold(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
         case A_SPC:
         case G_TAB:
-        case G_SPC:
-        case LA_TAB:
         case A_BSPC:
         case L1_BSPC:
         case S_SLSH:

@@ -4,7 +4,7 @@
 
 #include "quantum.h"
 
-#define SEQUENTIAL_COMBO_TIMEOUT_MS 200
+#define SEQUENTIAL_COMBO_TIMEOUT_MS 180
 
 typedef struct {
     uint16_t first_key;
