@@ -61,24 +61,24 @@ static const sequential_combo_entry_t my_combos[] = {
     {KC_D, KC_F, KC_F16}, // for IME
     {KC_F, KC_D, KC_F16}, // for IME
     {KC_S, KC_D, LSFT(KC_9)}, // tap "s" "d" to "("
+    {KC_DOT, KC_COMM, LSFT(KC_0)}, // tap "." "," to ")"
+    {S_SLSH, S_SLSH, KC_MINS}, // double tap "/" to "-"
     // {KC_D, KC_S, LSFT(KC_0)}, // tap "d" "s" to ")"
+    {KC_C, KC_V, KC_QUOT}, // tap "c" "v" to "'"
+    {KC_V, KC_C, LSFT(KC_QUOT)}, // tap "v" "v" to """
     {KC_X, KC_C, LSFT(KC_LBRC)}, // tap "x" "c" to "{"
     {KC_C, KC_X, LSFT(KC_RBRC)}, // tap "c" "x" to "}"
-    {KC_DOT, S_SLSH, LSFT(KC_SLSH)}, // tap "." "/" to "?"
-    {KC_COMM, KC_DOT, KC_EQL}, // tap "," "." to "="
-    {KC_DOT, KC_COMM, KC_QUOT}, // tap "." "," to "'"
-    {KC_COMM, KC_M, KC_UNDS}, // tap "," "M" to "_"
-    // {KC_DOT, KC_DOT, LSFT(KC_SCLN)}, // double tap "." to ":"
+    // {KC_P, KC_P, KC_MINS}, // tap "P" "P" to "-"
+    {KC_COMM, KC_DOT, KC_SCLN}, // tap "," "." to ";"
+    {KC_COMM, KC_M, KC_EQL}, // tap "," "m" to "="
+    {KC_M, KC_COMM, KC_UNDS}, // tap "," "M" to "_"
     {KC_COMM, KC_COMM, LSFT(KC_SCLN)}, // double tap "," to ":"
-    {LSFT(KC_SCLN), LSFT(KC_SCLN), KC_SCLN}, // double tap ":" to ";"
-    {KC_LPRN, KC_LPRN, LSFT(KC_COMM)}, // double tap "(" to "["
-    {KC_RPRN, KC_RPRN, LSFT(KC_DOT)}, // double tap ")" to "]"
-    {KC_LCBR, KC_LCBR, KC_LBRC}, // double tap "{" to "["
-    {KC_RCBR, KC_RCBR, KC_RBRC}, // double tap "}" to "]"
-    {S_SLSH, S_SLSH, KC_MINS}, // double tap "/" to "-"
+    {KC_LPRN, KC_LPRN, KC_LBRC}, // double tap "(" to "["
+    {KC_RPRN, KC_RPRN, KC_RBRC}, // double tap ")" to "]"
+    {KC_LCBR, KC_LCBR, LSFT(KC_COMM)}, // double tap "{" to "<"
+    {KC_RCBR, KC_RCBR, LSFT(KC_DOT)}, // double tap "}" to ">"
     {KC_MINS, KC_MINS, LSFT(KC_GRV)}, // double tap "-" to "~"
 };
-
 
 void keyboard_post_init_user(void) {
     init_sequential_combos(my_combos, sizeof(my_combos) / sizeof(my_combos[0]));
@@ -165,7 +165,8 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
         case S_Z:
             return 155;
         case C_A:
-            return 175;
+//             return 170;
+            return 180;
         case C_ENT:
             return 180;
         default:
